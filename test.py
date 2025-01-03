@@ -1,33 +1,26 @@
-from transformers import pipeline
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 def initialize_model():
-    print("Inicializando o modelo XLM-RoBERTa...")
-    return pipeline("fill-mask", model="xlm-roberta-base")
+    print("Inicializando o modelo T5 para correção gramatical...")
+    model = T5ForConditionalGeneration.from_pretrained("t5-small")
+    tokenizer = T5Tokenizer.from_pretrained("t5-small")
+    return model, tokenizer
 
-def correct_and_suggest(pipe):
+def correct_sentence(model, tokenizer):
     sentence = input("Digite uma frase para correção: ")
-    words = sentence.split()
-    suggestions = []
 
     print("\nProcessando... Por favor, aguarde.\n")
 
-    for i in range(len(words)):
-        masked_sentence = " ".join(words[:i] + ["<mask>"] + words[i+1:])
-        results = pipe(masked_sentence)
+    input_text = f"grammar correction: {sentence}"
+    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
 
-        best_suggestion = results[0]['token_str'].strip()
-
-        if best_suggestion != words[i]:
-            suggestions.append(best_suggestion)
-        else:
-            suggestions.append(words[i])
-
-    corrected_sentence = " ".join(suggestions)
+    outputs = model.generate(inputs, max_length=512, num_beams=4, early_stopping=True)
+    corrected_sentence = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     print("\n-- Sugestões de Correção e Fluidez ---")
     print(f"- Original: {sentence}")
     print(f"- Sugestão: {corrected_sentence}")
 
 if __name__ == "__main__":
-    pipe = initialize_model()
-    correct_and_suggest(pipe)
+    model, tokenizer = initialize_model()
+    correct_sentence(model, tokenizer)
