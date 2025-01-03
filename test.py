@@ -15,8 +15,12 @@ def correct_and_suggest(pipe):
         masked_sentence = " ".join(words[:i] + ["<mask>"] + words[i+1:])
         results = pipe(masked_sentence)
 
-        best_suggestion = results[0]['token_str']
-        suggestions.append(best_suggestion)
+        best_suggestion = results[0]['token_str'].strip()
+
+        if best_suggestion != words[i]:
+            suggestions.append(best_suggestion)
+        else:
+            suggestions.append(words[i])
 
     corrected_sentence = " ".join(suggestions)
 
