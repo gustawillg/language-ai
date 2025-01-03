@@ -14,29 +14,17 @@ def correct_and_suggest(pipe):
     sentence = input("Digite uma frase para correção: ")
     
     
-    if not sentence.strip():
-        print("A frase está vazia. Tente novamente.")
-        return
-
-    words = sentence.split()
-    suggestions = []
+    masked_sentence = sentence + "<mask>"
 
     print("\nProcessando... Por favor, aguarde.\n")
 
-    for i, word in enumerate(words):
-        masked_sentence = " ".join(words[:i] + ["<mask>"] + words[i+1:])
-        results = pipe(masked_sentence)
-
-        
-        best_suggestion = results[0]['token_str']
-        explanation = f"Substituímos '{words[i]}' por '{best_suggestion}' para melhorar a fluidez."
-        suggestions.append((words[i], best_suggestion, explanation))
+    results = pipe(masked_sentence)
+    best_suggetion = results[0]['results']
 
     print("\n-- Sugestões de Correção e Fluidez ---")
-    for original, suggestion, explanation in suggestions:
-        print(f"- Original: {original}")
-        print(f"  Sugestão: {suggestion}")
-        print(f"  Explicação: {explanation}\n")
+    print(f"- Original: {sentence}")
+    print(f"  Sugestão: {best_suggetion}")
+    print(f"Explicação: O modelo ajustou a frase considerando a fluidez e gramática.\n")
 
 if __name__ == "__main__":
     pipe = initialize_model()
