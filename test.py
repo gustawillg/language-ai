@@ -1,30 +1,28 @@
 from transformers import pipeline
 
 def initialize_model():
-    """
-    Inicializa o modelo XLM-RoBERTa para análise de preenchimento de máscaras.
-    """
     print("Inicializando o modelo XLM-RoBERTa...")
     return pipeline("fill-mask", model="xlm-roberta-base")
 
 def correct_and_suggest(pipe):
-    """
-    Recebe uma frase do usuário, aplica correção e sugere melhorias para fluidez.
-    """
     sentence = input("Digite uma frase para correção: ")
-    
-    
-    masked_sentence = sentence + "<mask>"
+    words = sentence.split()
+    suggestions = []
 
     print("\nProcessando... Por favor, aguarde.\n")
 
-    results = pipe(masked_sentence)
-    best_suggetion = results[0]['results']
+    for i in range(len(words)):
+        masked_sentence = " ".join(words[:i] + ["<mask>"] + words[i+1:])
+        results = pipe(masked_sentence)
+
+        best_suggestion = results[0]['token_str']
+        suggestions.append(best_suggestion)
+
+    corrected_sentence = " ".join(suggestions)
 
     print("\n-- Sugestões de Correção e Fluidez ---")
     print(f"- Original: {sentence}")
-    print(f"  Sugestão: {best_suggetion}")
-    print(f"Explicação: O modelo ajustou a frase considerando a fluidez e gramática.\n")
+    print(f"- Sugestão: {corrected_sentence}")
 
 if __name__ == "__main__":
     pipe = initialize_model()
