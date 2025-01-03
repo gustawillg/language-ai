@@ -1,6 +1,6 @@
 from transformers import pipeline
 
-def initialize_mode():
+def initialize_model():
     """
     Inicializa o modelo XLM-RoBERTa para análise de preenchimento de máscaras.
     """
@@ -18,12 +18,18 @@ def correct_and_suggest(pipe):
     print("\nProcessando... Por favor, aguarde. \n")
 
     for i in range(len(words)):
-        masked_setence= " ".join(words[:i] + ["<mask>"] + words[i+1:])
-        results = pipe(masked_setence)
+        # Substitui uma palavra por <mask>
+        masked_sentence = " ".join(words[:i] + ["<mask>"] + words[i+1:])
+        results = pipe(masked_sentence)
 
-        best_suggestion = results[0]['sequence']
-        explanation = f"Substituímos '{words[i]}' por '{best_suggestion.split()[i]}' para melhorar a fluidez."
-        suggestions.append((words[i], best_suggestion, explanation))
+        # Obtém a melhor sugestão para a máscara
+        best_suggestion = results[0]['token_str']
+
+        # Reconstrói a frase com a sugestão
+        corrected_sentence = " ".join(words[:i] + [best_suggestion] + words[i+1:])
+
+        explanation = f"Substituímos '{words[i]}' por '{best_suggestion}' para melhorar a fluidez."
+        suggestions.append((words[i], corrected_sentence, explanation))
 
     print("\n-- Sugestões de Correção e Fluidez ---")
     for original, suggestion, explanation in suggestions:
@@ -32,5 +38,5 @@ def correct_and_suggest(pipe):
         print(f" Explicação: {explanation}\n")
 
 if __name__ == "__main__":
-    pipe = initialize_mode()
+    pipe = initialize_model()
     correct_and_suggest(pipe)
