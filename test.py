@@ -1,26 +1,32 @@
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+from gramformer import Gramformer
 
-def initialize_model():
-    print("Inicializando o modelo T5 para correção gramatical...")
-    model = T5ForConditionalGeneration.from_pretrained("t5-small")
-    tokenizer = T5Tokenizer.from_pretrained("t5-small")
-    return model, tokenizer
+def initialize_gramformer():
+    print("Inicializando o modelo Gramformer...")
+    gf = Gramformer(models=1)
+    print("Gramformer inicializado com sucesso!")
+    return gf
 
-def correct_sentence(model, tokenizer):
-    sentence = input("Digite uma frase para correção: ")
-
+def correct_sentence(gf, sentence):
     print("\nProcessando... Por favor, aguarde.\n")
+    corrections = list(gf.correct(sentence, max_candidates=1))
+    if corrections:
+        return corrections[0]
+    else:
+        return "Nenhuma sugestão encontrada. A frase pode já estar correta."
 
-    input_text = f"grammar correction: {sentence}"
-    inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
+def main():
+    gf = initialize_gramformer()
 
-    outputs = model.generate(inputs, max_length=512, num_beams=4, early_stopping=True)
-    corrected_sentence = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    while True:
+        sentence = input("\nDigite uma frase para correção (ou 'sair' para encerrar): ").strip()
+        if sentence.lower() == "sair":
+            print("Encerrando o programa. Até mais!")
+            break
 
-    print("\n-- Sugestões de Correção e Fluidez ---")
-    print(f"- Original: {sentence}")
-    print(f"- Sugestão: {corrected_sentence}")
+        corrected = correct_sentence(gf, sentence)
+        print("\n-- Sugestões de Correção e Fluidez ---")
+        print(f"- Original: {sentence}")
+        print(f"- Sugestão: {corrected}")
 
 if __name__ == "__main__":
-    model, tokenizer = initialize_model()
-    correct_sentence(model, tokenizer)
+    main()
