@@ -1,4 +1,5 @@
 from gramformer import Gramformer
+import en_core_web_sm
 
 def initialize_gramformer():
     print("Inicializando o modelo Gramformer...")
