@@ -1,5 +1,6 @@
 from gramformer import Gramformer
-import en_core_web_sm
+import pandas as pd
+
 
 def initialize_gramformer():
     print("Inicializando o modelo Gramformer...")
@@ -28,6 +29,10 @@ def main():
         print("\n-- Sugestões de Correção e Fluidez ---")
         print(f"- Original: {sentence}")
         print(f"- Sugestão: {corrected}")
+
+def load_dataset():
+    lang8_path = "./datasets/lang8.csv"
+    jfleg_path = "./datasets/jfleg.csv"
 
 if __name__ == "__main__":
     main()
