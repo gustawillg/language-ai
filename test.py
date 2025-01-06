@@ -1,6 +1,4 @@
-from datasets import load_dataset
 from gramformer import Gramformer
-import pandas as pd
 
 def initialize_gramformer():
     print("Inicializando o modelo Gramformer...")
@@ -16,19 +14,8 @@ def correct_sentence(gf, sentence):
     else:
         return "Nenhuma sugestão encontrada. A frase pode já estar correta."
 
-def load_datasets():
-    jfleg = load_dataset("jhu-clsp/jfleg", split='validation')  # Carrega o dataset JFLEG
-    jfleg_df = pd.DataFrame(jfleg)  # Converte o dataset JFLEG para DataFrame
-
-    print("Colunas do jfleg_df:", jfleg_df.columns)
-    
-    combined_df = jfleg_df[['sentence']]  # Apenas utiliza a coluna 'sentence' do JFLEG
-    print(f"Total de exemplos combinados: {len(combined_df)}")
-    return combined_df 
-
 def main():
     gf = initialize_gramformer()
-    combined_dataset = load_datasets()
     
     while True:
         sentence = input("\nDigite uma frase para correção (ou 'sair' para encerrar): ").strip()
