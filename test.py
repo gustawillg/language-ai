@@ -1,5 +1,6 @@
 from gramformer import Gramformer
 import language_tool_python
+import re
 
 def initialize_gramformer():
     print("Inicializando Gramformer...")
@@ -8,6 +9,9 @@ def initialize_gramformer():
 def initialize_languagetool():
     print("Inicializando LanguageTool...")
     return language_tool_python.LanguageTool('en-US')
+
+def split_sentences(text):
+    return re.split(r'(?<=[.!?]) +', text)
 
 def correct(gf, sentence):
     corrections = list(gf.correct(sentence, max_candidates=1))
@@ -34,15 +38,24 @@ def main():
             print("Encerrando o programa.")
             break
 
-        corrected_sentence = correct(gf, sentence)
-        explanations = explain(tool, corrected_sentence)
+        sentences = split_sentences(sentence)
+        corrected_sentences = []
+        all_explanations = []
+
+        for part in sentences:
+            corrected_part = correct(gf, part)
+            explanations = explain(tool, corrected_part)
+            corrected_sentences.append(corrected_part)
+            all_explanations.extend(explanations)
+
+        corrected_text = " ".join(corrected_sentences)
 
         print("\nCorreção do Gramformer:")
         print(f"- Original: {sentence}")
-        print(f"- Corrigido: {corrected_sentence}")
+        print(f"- Corrigido: {corrected_text}")
         print("\nExplicações do LanguageTool:")
-        if explanations:
-            for explanation in explanations:
+        if all_explanations:
+            for explanation in all_explanations:
                 print(f"- Erro: {explanation['error']}")
                 print(f"  Sugestão: {', '.join(explanation['suggestion'])}")
                 print(f"  Motivo: {explanation['message']}")
